@@ -1,6 +1,7 @@
 # Introduction
-This repo contains code for our group project
-
+This repo contains code for our group project.
+Dataset: https://huggingface.co/datasets/lambdalabs/naruto-blip-captions
+Stable Diffusion model: https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5
 # Step to request GPU in PACE
 1. Login to PACE with: `ssh <GT ID>@gatech.pace.gatech.edu` - replace `<GT ID>` with your GT ID
 2. `cd` to the project root dir
