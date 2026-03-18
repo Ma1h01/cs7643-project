@@ -4,6 +4,7 @@ import base64
 import shutil
 import argparse
 import time
+import random
 from pathlib import Path
 from openai import OpenAI, RateLimitError
 
@@ -117,6 +118,30 @@ def caption_images(image_dir, output_file):
 
     print(f"Captioning complete! Labels saved to '{output_file}'.")
 
+def split_jsonl(input_file, train_ratio, val_ratio):
+    with open(input_file, 'r') as f:
+        data = [json.loads(line) for line in f]
+    
+    random.seed(42) # Fixed seed for reproducibility
+    random.shuffle(data)
+    
+    total = len(data)
+    train_end = int(total * train_ratio)
+    val_end = train_end + int(total * val_ratio)
+    train_data = data[:train_end]
+    val_data = data[train_end:val_end]
+    test_data = data[val_end:]
+    
+    def write_jsonl(data, filename):
+        with open(filename, 'w') as f:
+            for item in data:
+                f.write(json.dumps(item) + '\n')
+        print(f"Saved {len(data)} items to {filename}")
+
+    write_jsonl(train_data, 'train.jsonl')
+    write_jsonl(val_data, 'val.jsonl')
+    write_jsonl(test_data, 'test.jsonl')
+
 def main():
     parser = argparse.ArgumentParser(description="A CLI to process and caption image data for Stable Diffusion fine-tuning.")
     subparsers = parser.add_subparsers(dest="command", required=True, help="Subcommands")
@@ -128,6 +153,11 @@ def main():
     parser_caption = subparsers.add_parser("caption", help="Send a folder of images to OpenAI to generate a labels.jsonl file.")
     parser_caption.add_argument("--dir", required=True, help="Directory containing the collected PNG images.")
     parser_caption.add_argument("--out", default="labels.jsonl", help="Output filename for the JSONL labels (default: labels.jsonl).")
+
+    parser_split = subparsers.add_parser("split", help="Split a JSONL file into train/val/test sets.")
+    parser_split.add_argument("--input", required=True, help="Input JSONL file to split.")
+    parser_split.add_argument("--train_ratio", default=0.8, type=float, help="Proportion of data to use for training (default: 0.8).")
+    parser_split.add_argument("--val_ratio", default=0.1, type=float, help="Proportion of data to use for validation (default: 0.1).")
     
     args = parser.parse_args()
     
@@ -135,6 +165,8 @@ def main():
         collect_images(args.src, args.dest)
     elif args.command == "caption":
         caption_images(args.dir, args.out)
+    elif args.command == "split":
+        split_jsonl(args.input, args.train_ratio, args.val_ratio)
 
 if __name__ == "__main__":
     main()
