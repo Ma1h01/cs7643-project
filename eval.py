@@ -213,6 +213,22 @@ def main(args):
         json.dump(results, f, indent=4)
     print(f"\nResults saved to {args.output_file}")
 
+    # 7. Generate Images for Custom Prompts
+    custom_prompts = [
+        "eldenring gameplay style, third person view, player character fighting a massive dragon boss, dynamic motion, sparks, fire, cinematic camera angle",
+        "eldenring gameplay style, boss arena, grotesque humanoid monster, detailed armor, high contrast lighting, epic composition",
+        "eldenring gameplay style, open world exploration, distant castle, broken bridges, dead trees, misty environment, wide shot"
+    ]
+    
+    print(f"\nGenerating {len(custom_prompts)} custom Elden Ring style images...")
+    for i, prompt in enumerate(custom_prompts, 1):
+        print(f"Generating image {i}/{len(custom_prompts)}: {prompt[:60]}...")
+        generator = torch.Generator(device).manual_seed(42 + i)  # Different seed for each image
+        custom_img = pipe(prompt, num_inference_steps=30, generator=generator, guidance_scale=7.5).images[0]
+        output_path = f"{args.samples_dir}/eldenring_custom_{i:02d}.png"
+        custom_img.save(output_path)
+        print(f"Saved: {output_path}")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate fine-tuned SD models.")
     parser.add_argument("--peft_path", type=str, required=True, help="Path to the saved PEFT weights directory.")
