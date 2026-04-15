@@ -1,0 +1,11 @@
+diffusers==0.37.1
+matplotlib==3.10.8
+numpy==2.4.4
+openai==2.31.0
+peft==0.19.0
+Pillow==12.2.0
+torch==2.11.0
+torchmetrics==1.9.0
+torchvision==0.26.0
+tqdm==4.67.3
+transformers==5.5.4
